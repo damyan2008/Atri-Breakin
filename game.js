@@ -13,7 +13,6 @@ let monitor = screen.width;
 let dq1 = Math.abs(monitor / kletkaShir / 1.1) - 1;
 
 let difficulty = 6;
-
 let brBoxes = Math.abs(dq1 * difficulty);
 let ballMoving = true;
 
