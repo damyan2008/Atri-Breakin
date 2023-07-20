@@ -10,11 +10,12 @@ let playerShir = 200, playerX = 400 - playerShir/2, playerY = monitorDown - 200,
     kletkaShir = 40, cvetove = ["orange", "green", "cyan", "pink", "yellow", "white", "purple"];
 
 let monitor = screen.width;
-let dq1 = Math.abs(monitor / kletkaShir / 1.1) - 1;
+let dq1 = 30;
 
 let difficulty = 6;
 let brBoxes = Math.abs(dq1 * difficulty);
 let ballMoving = true;
+let ballMovingCounter = 0;
 
 for(let i = 0; i < dq1; i++) {
     tipNaKletka[i] = [];
@@ -24,6 +25,17 @@ for(let i = 0; i < dq1; i++) {
 let playing = false;
 
 function update() {
+
+    if(isKeyPressed[70]) {//Game freeze
+        ballMovingCounter += 0.1;
+    }
+
+    if(Math.ceil(ballMovingCounter) % 2 == 0 && brBoxes >= 1) {//Game freeze
+        ballMoving = true;
+    }else{
+        ballMoving = false;
+    }
+
 
     if(isKeyPressed[32]){
         playing = true;
@@ -64,11 +76,11 @@ function update() {
                 playerCelX += movementSpeed;
             }
 
-            if(isKeyPressed[37]){//A
+            if(isKeyPressed[37]){//<-
                 player2X -= movementSpeed;
             }
 
-            if(isKeyPressed[39]){//D
+            if(isKeyPressed[39]){//->
                 player2X += movementSpeed;
             }
         }
@@ -106,15 +118,21 @@ function update() {
 
         for(let i = 0; i < dq1; i++) {   // сблъсък между таблица и топче
             for(let j = 0; j < difficulty; j++) {
-                if(tipNaKletka[i][j] != -1 && areColliding(tX, tY, tShir, tShir, i*kletkaShir * 1.1 + 15, j*kletkaShir * 1.1 + 70, kletkaShir, kletkaShir)) {
+                if(tipNaKletka[i][j] != -1 && areCollidingUD(tX, tY, tShir, tShir, (monitor / 2 - 655) + i*kletkaShir * 1.1, j*kletkaShir * 1.1 + 70, kletkaShir, kletkaShir)) {
                     tdY = -tdY;
                     
                     tipNaKletka[i][j] = -1; // Унищожаваме клетка
                     brBoxes--;
                     return;
-                }
+                } else if(tipNaKletka[i][j] != -1 && areCollidingSides(tX, tY, tShir, tShir, (monitor / 2 - 655) + i*kletkaShir * 1.1, j*kletkaShir * 1.1 + 70, kletkaShir, kletkaShir)) {
+                    tdX = -tdX;
+                    
+                    tipNaKletka[i][j] = -1; // Унищожаваме клетка
+                    brBoxes--;
+                    return;
             }
-        }
+        }    
+    }
     }else{
         tY = playerY - tShir - 5;
         tX = playerX + playerShir / 2 - 10;
@@ -128,10 +146,10 @@ function update() {
         }
     }
 
-    if(playerX <= -1){
-        playerX = 0;
-    }else if(playerX + playerShir > monitor){
-        playerX = monitor - playerShir;
+    if(playerCelX < 0){
+        playerCelX = 0;
+    }else if(playerCelX + playerShir > monitor){
+        playerCelX = monitor - playerShir;
     }
 
     if(player2X < 0){
@@ -161,7 +179,7 @@ function draw() {
         for(let j = 0; j < difficulty; j++) {
             if(tipNaKletka[i][j] != -1) {
                 context.fillStyle = cvetove[ tipNaKletka[i][j] ];
-                context.fillRect(i*kletkaShir * 1.1 + 15, j*kletkaShir * 1.1 + 70, kletkaShir, kletkaShir);
+                context.fillRect((monitor / 2 - 655) + i*kletkaShir * 1.1, j*kletkaShir * 1.1 + 70, kletkaShir, kletkaShir);
             }
         }
     }
@@ -170,7 +188,7 @@ function draw() {
     if(playing == false){
         context.font = "50px Arial"
         context.fillStyle = "Black"
-        context.fillText("Click to Start", monitor / 2 - 200, 50, 400, 10);
+        context.fillText("Click or Press Space to Start", monitor / 2 - 250, 50, 450, 10);
     }
 
     if(tY > playerY){
@@ -184,7 +202,7 @@ function draw() {
 
             for(let i = 0; i < dq1; i++) {
                 tipNaKletka[i] = [];
-                for(let j = 0; j < 6; j++) {tipNaKletka[i][j] = randomInteger(5);}
+                for(let j = 0; j < difficulty; j++) {tipNaKletka[i][j] = randomInteger(7);}
             }
         }
 
@@ -194,10 +212,11 @@ function draw() {
         context.font = "20px Arial"
         context.fillStyle = "Black"
         context.fillText("Press E for easy mode;", 20, 400, 400, 10);
-        context.fillText("Press M for easy mode;", 20, 450, 400, 10);
-        context.fillText("Press H for easy mode;", 20, 500, 400, 10);
+        context.fillText("Press M for medium mode;", 20, 450, 400, 10);
+        context.fillText("Press H for hard mode;", 20, 500, 400, 10);
         context.fillText("Movement mode: " + movementMode + " (P to change)", 20, 550, 400, 10);
         context.fillText("Player mode: " + playerMode + " (O to change)", 20, 600, 400, 10);
+        context.fillText("Press F to pause the game", 20, 650, 400, 10);
 
         if(isKeyPressed[69]) {
             difficulty = 3;
@@ -236,13 +255,13 @@ function draw() {
         context.font = "20px Arial"
         context.fillText("Press R to play again.", monitor / 2 - 200, 350, 400, 10);
 
-        if(isKeyPressed[82]){
+        if(isKeyPressed[82]){//R
             playing = false;
             ballMoving = true;
             
             for(let i = 0; i < dq1; i++) {
                 tipNaKletka[i] = [];
-                for(let j = 0; j < difficulty; j++) {tipNaKletka[i][j] = randomInteger(5);}
+                for(let j = 0; j < difficulty; j++) {tipNaKletka[i][j] = randomInteger(7);}
             }
         }
     }
