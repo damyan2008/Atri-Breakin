@@ -58,6 +58,32 @@
                 return 0;
             };
 
+            function areCollidingSides(Ax, Ay, Awidth, Aheight, Bx, By, Bwidth, Bheight){
+                if (Ax <= Bx + Bwidth && Ax >= Bx + Bwidth - 6 || Ax + Awidth >= Bx && Ax + Awidth <= Bx + 6) { 
+                    if (By <= Ay + Aheight) {
+                        if (Ay <= By + Bheight) {
+                             return 1;
+                        }
+                    
+                    }
+                }
+                    
+                return 0;
+            }
+
+            function areCollidingUD(Ax, Ay, Awidth, Aheight, Bx, By, Bwidth, Bheight) {
+                if (Bx <= Ax + Awidth) {
+                    if (Ax <= Bx + Bwidth) {
+                        if (Ay <= By + Bheight && Ay >= By + Bheight - 6 || Ay + Aheight >= By && Ay + Aheight <= By + 6) {
+                            if (Ay <= By + Bheight) {
+                                return 1;
+                            }
+                        }
+                    }
+                }
+                return 0;
+            };
+
             function randomInteger(upTo) {
                 return Math.floor(Math.random() * upTo);
             }
